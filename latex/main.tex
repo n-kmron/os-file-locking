@@ -1,0 +1,86 @@
+\documentclass{article}
+
+\usepackage{listings}
+\usepackage{color}
+\usepackage{mdframed}
+\usepackage{setspace}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{framed}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tcolorbox}
+\usepackage[utf8]{inputenc}
+
+\colorlet{LightGray}{White!90!Periwinkle}
+\colorlet{LightOrange}{Orange!15}
+\colorlet{LightGreen}{Green!15}
+
+\newcommand{\HRule}[1]{\rule{\linewidth}{#1}}
+
+\setstretch{1.2}
+\geometry{
+    textheight=9in,
+    textwidth=5.5in,
+    top=1in,
+    headheight=12pt,
+    headsep=25pt,
+    footskip=30pt
+}
+
+\definecolor{light-gray}{gray}{0.95}
+
+\mdfdefinestyle{mystyle}{
+  backgroundcolor=light-gray,
+  roundcorner=5pt,
+  linewidth=0.5pt, 
+  linecolor=black,
+  innertopmargin=10pt,
+  innerbottommargin=10pt,
+  innerrightmargin=10pt,
+  innerleftmargin=10pt
+}
+
+% ------------------------------------------------------------------------------
+
+\begin{document}
+
+% ------------------------------------------------------------------------------
+% Cover Page and ToC
+% ------------------------------------------------------------------------------
+
+\title{ \normalsize \textsc{}
+                \\ [2.0cm]
+                \HRule{1.5pt} \\
+                \LARGE \textbf{\uppercase{File Locking in Linux}
+                \HRule{1.0pt} \\ [0.3cm] \LARGE{Dans le cadre du cours SYSG5} \vspace*{10\baselineskip}}
+                }
+\date{}
+\author{\textbf{Cameron Noupoué} \\
+                2023}
+
+\maketitle
+\newpage
+
+\tableofcontents
+    \input{chapter/introduction}
+    \input{chapter/rappels}
+    \input{chapter/concurrence}
+    \input{chapter/locking}
+    \input{chapter/os}
+    \input{chapter/implementation}
+    \input{chapter/conclusion}
+\newpage
+
+% ------------------------------------------------------------------------------
+% Reference and Cited Works
+% ------------------------------------------------------------------------------
+
+\bibliographystyle{plain}
+\bibliography{references.bib}
+
+% ------------------------------------------------------------------------------
+
+\end{document}

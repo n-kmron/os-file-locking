@@ -1,0 +1,25 @@
+\babel@toc {english}{}\relax 
+\contentsline {section}{\numberline {1}Introduction}{3}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Contexte et Objectif}{3}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Introduction au verrouillage de fichiers}{3}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Rappel : file locking vs sémaphores}{4}{section.2}%
+\contentsline {subsection}{\numberline {2.1}File locking\cite {diffSemLock}}{4}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Sémaphores\cite {diffSemLock2}}{4}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}En comparaison}{4}{subsection.2.3}%
+\contentsline {section}{\numberline {3}L'accès concurrence : une norme qui n'a pas toujours été respectée}{6}{section.3}%
+\contentsline {section}{\numberline {4}Les types de verrouillages\cite {butenhof}}{7}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Visualiser tous les verrous d'un système Linux}{7}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Advisory Locks}{7}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Mandatory Locks}{9}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}L'output de lslocks}{10}{subsection.4.4}%
+\contentsline {section}{\numberline {5}La prise en charge par l'OS}{12}{section.5}%
+\contentsline {subsection}{\numberline {5.1}La structure \texttt {flock}}{12}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}L'appel système fcntl() au niveau de l'OS\cite {ManFnctl}}{12}{subsection.5.2}%
+\contentsline {section}{\numberline {6}L'implémentation des verrous}{14}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Gestion d'une région critique grâce à un verrouillage}{14}{subsection.6.1}%
+\contentsline {paragraph}{Explication :}{16}{section*.2}%
+\contentsline {paragraph}{Remarque :}{16}{section*.3}%
+\contentsline {subsection}{\numberline {6.2}Comparaison avec un sémaphore}{16}{subsection.6.2}%
+\contentsline {paragraph}{Explication :}{18}{section*.4}%
+\contentsline {subsection}{\numberline {6.3}Les différences entre ces 2 manières}{18}{subsection.6.3}%
+\contentsline {section}{\numberline {7}Conclusion}{20}{section.7}%

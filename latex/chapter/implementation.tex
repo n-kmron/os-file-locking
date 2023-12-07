@@ -1,0 +1,214 @@
+\newpage
+\section{L'implémentation des verrous}
+
+\subsection{Gestion d'une région critique grâce à un verrouillage}
+Je vais à présent démontrer comment protéger une région critique avec les verrouillages en language C grâce à la structure \texttt{flock} et l'appel système \texttt{fcntl}. Nous étudierons plus en profondeur cet AS dans la suite de ce rapport.
+\newline
+Dans l'exemple qui suit, nous allons essayer de sécuriser l'accès à une base de données locale afin de conserver une cohérence à tout moment.
+
+\begin{mdframed}[style=mystyle]
+\begin{lstlisting}[language=C, caption={Code C avec verrouillage de fichier}]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+
+int main(int argc, char *argv[]) {
+    int fd, n;
+    char buff[100];
+
+    // Ouverture du fichier de la base de donnees
+    if ((fd = open("database.txt", O_WRONLY | O_CREAT 
+            | O_TRUNC, 0666)) == -1) {
+        perror("open");
+        exit(-1);
+    }
+
+    // Configuration du verrou via la structure flock
+    struct flock lock;
+    lock.l_type = F_WRLCK;  // Verrou en ecriture
+    lock.l_whence = SEEK_SET;
+    lock.l_start = 0;
+    lock.l_len = 0;  // Verrou sur tout le fichier
+
+    if (fcntl(fd, F_SETLKW, &lock) == -1) {
+        perror("fcntl");
+        exit(1);
+    }
+
+    if (fork() == 0) {
+        // Code du fils
+        while (fcntl(fd, F_GETLK, &lock) != -1 
+                && lock.l_type != F_UNLCK) {
+            sleep(1);
+        }
+
+        do {
+            printf("[fils]: a pris le verrou sur la database\n");
+            n = read(0, buff, 100);
+            buff[n - 1] = 0;
+            printf("[fils]: rend le verrou\n");
+
+            if (fcntl(fd, F_SETLKW, &lock) == -1) {
+                perror("[fils] fcntl");
+                exit(1);
+            }
+
+            write(fd, buff, n);
+
+            if (fcntl(fd, F_SETLK, &lock) == -1) {
+                perror("[fils] fcntl");
+                exit(1);
+            }
+        } while (strcmp(buff, "quit") != 0);
+
+        printf("[fils]: a termine\n");
+        exit(0);
+    }
+    else {
+        // Code du pere
+        while (fcntl(fd, F_GETLK, &lock) != -1 
+                && lock.l_type != F_UNLCK) {
+            sleep(1);
+        }
+
+        do {
+            printf("[pere]: a pris le verrou sur la database\n");
+            n = read(0, buff, 100);
+            buff[n - 1] = 0;
+            printf("[pere]: rend le verrou\n");
+
+
+            if (fcntl(fd, F_SETLKW, &lock) == -1) {
+                perror("[pere] fcntl");
+                exit(1);
+            }
+
+            write(fd, buff, n);
+
+            if (fcntl(fd, F_SETLK, &lock) == -1) {
+                perror("[pere] fcntl");
+                exit(1);
+            }
+        } while (strcmp(buff, "quit") != 0);
+
+        printf("[pere]: a termine\n");
+        wait(0);
+    }
+
+    // Fermeture du fichier (le verrou sera libere)
+    close(fd);
+    exit(0);
+}
+\end{lstlisting}
+\end{mdframed}
+\paragraph{Explication :}
+Dans ce code, nous utilisons la fonction `fcntl` pour établir un verrou obligatoire sur le fichier "database.txt". Le verrou  est configuré en écriture et couvre l'ensemble du fichier. 
+
+Lorsqu'un processus tente d'accéder au fichier qui a un verrou obligatoire, le système d'exploitation vérifie si le verrou est déjà détenu par un autre processus. Si le verrou est disponible, le processus qui a tenté d'acquérir le verrou réussira et pourra accéder au fichier. En revanche, si le verrou est déjà détenu par un autre processus, le système d'exploitation bloquera le processus en attente jusqu'à ce que le verrou soit libéré par le processus actuel propriétaire du verrou.
+
+Cela garantit qu'un seul processus à la fois peut détenir le verrou obligatoire sur le fichier, assurant ainsi un accès exclusif à la ressource. Les autres processus qui tentent d'acquérir le verrou pendant qu'il est déjà détenu par un processus doivent attendre que le verrou soit libéré.
+
+\paragraph{Remarque :} Notez qu'il s'agit la d'une implémentation d'un verrou consultatif (Adivsory Lock) et qu'il requiert donc coopérativité. Malheureusement, monter le système de fichiers pour qu'il soit compatibles avec les verrous obligatoires (Mandatory Lock) demande d'avoir les droits d'administrateurs, ce qui n'est pas possible au local 503. Cependant, leur implémentation est très similaire après avoir monter le système de fichier comme décrit à la section 4.3. Cela implique que dans mon exemple et ma démo, les 2 processus se doivent d'être coopératifs.
+
+\subsection{Comparaison avec un sémaphore}
+Nous venons donc de voir comment verrouiller un ficher avec des locks, je décide donc à présent d'illustrer la comparaison avec un sémaphore qui ferait la même action. Analysons la mise en place de gestion d'une région critique sur une base de données locale avec un sémaphore
+
+\begin{mdframed}[style=mystyle]
+\begin{lstlisting}[language=C, caption={Code C avec sémaphore}]
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#define SEM_KEY 1234
+
+int opsem(int sem, int i) {
+    struct sembuf op[1];
+    op[0].sem_num = 0;
+    op[0].sem_op = i;
+    op[0].sem_flg = 0;
+
+    if (semop(sem, op, 1) == -1) {
+        perror("semop");
+        exit(1);
+    }
+    return 0;
+}
+
+int main(int argc, char *argv[]) {
+    int sem, n;
+    char buff[100];
+
+    // Creation du semaphore
+    if ((sem = semget(SEM_KEY, 1, 0666 | IPC_CREAT)) == -1) {
+        perror("semget");
+        exit(-1);
+    }
+
+    // Initialisation du semaphore
+    if (semctl(sem, 0, SETVAL, 1) == -1) {
+        perror("semctl");
+        exit(1);
+    }
+
+    if (fork() == 0) {
+        do {
+            opsem(sem, -1); // down
+            printf("[fils]: I want access to the database\n");
+            n = read(0, buff, 100);
+            buff[n - 1] = 0;
+            printf("[fils]: Wrote: [%s]\n", buff);
+            opsem(sem, +1); // up
+        } while (strcmp(buff, "quit") != 0);
+        printf("[fils]: Access to the database done\n");
+        exit(0);
+    }
+
+    do {
+        opsem(sem, -1); // down
+        printf("[pere]: I want access to the database\n");
+        n = read(0, buff, 100);
+        buff[n - 1] = 0;
+        printf("Wrote: [%s]\n", buff);
+        opsem(sem, +1); // up
+    } while (strcmp(buff, "quit") != 0);
+
+    printf("[pere]: Access to the database done\n");
+    wait(0);
+
+    // Suppression du semaphore
+    if (semctl(sem, 0, IPC_RMID) != 0) {
+        perror("semctl");
+        exit(1);
+    }
+    exit(0);
+}
+\end{lstlisting}
+\end{mdframed}
+
+\paragraph{Explication :}
+Sans rentrer dans les détails de l'implémentation des sémaphores étant donné que l'on a déjà étudier ce concept précédemment, on obsèrve dans un premier temps que pour un même but, le sémaphore demande bien plus de code et de mise en place. Chaque process voulant opérer une région critique doit se rappeler qu'il doit faire appel au sémaphore, potentiellement devoir l'initialiser
+
+\subsection{Les différences entre ces 2 manières}
+\textbf{Avantages des locks :}
+
+\begin{itemize}
+\item \textit{Simplicité d'implémentation :} Le code avec les verrous de fichier est souvent plus concis et plus facile à comprendre. L'utilisation de la structure \texttt{flock} et de \texttt{fcntl} simplifie la gestion des verrous, offrant une abstraction plus conviviale.
+
+\item \textit{Intégration avec le système de fichiers :} Les verrous de fichier s'intègrent naturellement avec le système de fichiers, offrant une approche transparente pour contrôler l'accès aux ressources partagées.
+\end{itemize}
+
+\textbf{Nuances et Considérations :}
+
+\begin{itemize}
+\item \textit{Complexité de la Sémantique des Verrous :} Bien que les verrous de fichier soient simples à mettre en œuvre, la sémantique des verrous peut parfois être complexe. Par exemple, un verrou en écriture peut bloquer d'autres verrous en lecture, ce qui peut entraîner des comportements inattendus dans certaines situations. En effet, un verrou en lecture peut être partagé contrairement à un verrou en écriture. Si un nouveau verrou est appliqué sur une zone déjà verrouillée, alors le verrou précédent est converti suivant le nouveau type. Cette conversion peut alors réduire ou étendre le verrou existant et corrompre l'accès.
+\item \textit{Flexibilité des Sémaphores :} Les sémaphores offrent une plus grande flexibilité dans la gestion de l'accès concurrent. Ils permettent de définir des politiques plus complexes, comme la priorité entre différents processus ou la gestion fine des autorisations d'accès.
+\end{itemize}
+
+En conclusion, bien que les verrous de fichier soient une option attractive en raison de leur simplicité et de leur portabilité, les sémaphores peuvent être préférables dans des cas où une flexibilité accrue et une gestion fine de l'accès sont nécessaires. Le choix entre les deux dépendra des exigences spécifiques de l'application et des performances souhaitées.

@@ -1,0 +1,45 @@
+\newpage
+\section{La prise en charge par l'OS}
+
+Dorénavant, voyons comment le système d'exploitation s'occupe des verrous.
+
+\subsection{La structure \texttt{flock}}
+L'appel système fcntl() se base sur la structure \texttt{flock} pour fonctionnner. Voyons donc comment cette structure se compose et à quoi sert-elle.
+
+\begin{itemize}
+    \item \texttt{l\_type} : Il s'agit du type de verrouillage (lecture, écriture, débloquer).
+    \newline
+    Si le verrouillage est en lecture, un nombre quelconque de processus pourront tenir le verrou (qui sera donc partagé). Un verrou en lecture permet aux processus qui l'acquiert de conserver une cohérence grâce à la synchronisation de l'accès à la ressource. Je ne rentrerai pas plus dans les détails car je n'ai pas plus compris ce point.
+    
+    Un verrou en écriture se veut quant à lui exclusif. 
+
+    \textbf{Remarque:} 
+    Un processus donné ne peut tenir qu'un seul verrou sur une région d'un fichier. Si un nouveau verrou y est appliqué, alors le verrou précédent est converti suivant le nouveau type. Ceci peut entraîner la réduction ou l'extension du verrou existant si le nouveau verrou ne coïncide pas exactement avec celui de l'ancien.
+    
+    \item \texttt{l\_whence} : Interprétation de \texttt{l\_start} (par exemple, SEEK-SET, etc.).
+    
+    \item \texttt{l\_start} : Décalage par rapport au début.
+    
+    \item \texttt{l\_len} : Taille en octets du verrouillage. Si 0, alors verrouiller tous les octets de la position indiquée par \texttt{l\_whence} et \texttt{l\_start} jusqu'à la fin du fichier, quelle que soit sa taille.
+\end{itemize}
+
+\subsection{L'appel système fcntl() au niveau de l'OS\cite{ManFnctl}}
+
+\texttt{fcntl} permet d'effectuer plusieurs opérations sur un descripteur de fichier. L'opération à effectuer est déterminée par la valeur de l'argument \texttt{cmd}. \texttt{fcntl} possède 2 ou 3 paramètres selon l'argument \texttt{cmd} : le descripteur de fichier (\texttt{file descriptor}) et la commande (\texttt{cmd}). Le troisième paramètre est adapté en fonction de la commande, dans notre cas, il s'agit d'un pointeur vers la structure \texttt{flock} qui doit posséder au minimum les paramètres donnés dans la section précédente.
+    
+Dans le cadre du verrouillage de fichiers consultatif (Advisory Lock), le fichier doit être ouvert au sein du process à l'aide d'un file descriptor \texttt{fd}.
+
+Une fois la structure définie, on appelle la fonction \texttt{fcntl} avec le descripteur de fichier (qui doit être ouvert au moins en lecture pour un verrou en lecture et en écriture si le verrou est en écriture) et la commande \texttt{SETLK}. Cela créera soit un verrou en écriture, en lecture, ou le libérera si \texttt{l\_type} vaut \texttt{UNLCK}. En cas de conflit avec un verrou détenu par un autre processus, la fonction renvoie -1 ou bien le process sera bloqué si un de ses flags l'a demandé.
+
+Si un processus qui a créé un verrou est terminé ou s'il ferme un descripteur de fichier d'un fichier sur lequel est appliqué un verrou, alors les verrous créés seront libérés également. Cela a été observé dans mon exemple avec Mozilla Firefox (voir section 4.4).
+\newline
+
+\textbf{Remarque:} 
+Les verrouillages d'enregistrements ne sont pas hérités par les enfants lors d'un \texttt{fork}, mais sont préservés à travers un \texttt{exec}.
+
+Lorsqu'un processus utilise la fonction \texttt{fork}, il crée une copie du processus parent, appelée processus fils. Cette copie inclut les descripteurs de fichiers ouverts, y compris les verrous associés à ces descripteurs de fichiers. Il est important de noter que cela ne crée pas une copie physique des verrous; au lieu de cela, les deux processus (le parent et le fils) partagent les mêmes verrous.
+
+Si le processus fils ou le processus parent modifie l'état du verrou, cette modification sera reflétée dans l'autre processus, car ils partagent le même espace de descripteurs de fichiers.
+
+Cependant, lorsqu'un processus utilise \texttt{execve} pour exécuter un nouveau programme, le système d'exploitation remplace l'image du processus en cours par celle du nouveau programme. 
+

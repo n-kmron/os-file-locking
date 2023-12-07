@@ -1,0 +1,35 @@
+\newpage
+\section{Rappel : file locking vs sémaphores}
+
+Nous avons étudié les sémaphores dans le cadre du cours de SYS4\cite{Mba}. Il s'agit d'un outil qui permet de protéger une section critique en gérant l'accès concurrence.
+
+
+Je me suis donc demandé quelles étaient les différences entre ces deux outils et qu'est-ce qui pourrait nous faire balancer vers l'un ou l'autre en fonction du contexte. C'est pourquoi j'ai décidé de dédier une section afin de comparer les sémaphores et le verrouillage de fichier.
+
+
+A la base, les différentes implémentations de gestion d'accès concurrent sont nées sur différents systèmes. Il y avait entre autre les sémaphores sur Sytem V Unix, POSIX avait aussi son implémentation des sémaphores. 4.2BSD\cite{42BSD} (Barkley Software Distribution) est l'origine des flock.
+
+
+Depuis qu'ils ont tous acquis une certaine importance, Linux les prend désormais tous en charge par soucis de portabilité.
+\newline
+\newline
+Voyons donc quelles sont les différences entre ces 2 outils.
+
+\subsection{File locking\cite{diffSemLock}}
+
+Un verrou (\textit{lock}) autorise l'entrée d'un seul \textit{thread} à l'intérieur de la section de code spécifiée. Par analogie, considérons l'exemple d'un casier partagé dans une salle de sport. Si un utilisateur l'a déjà utilisé, le casier est verrouillé, empêchant tout autre utilisateur d'y accéder jusqu'à ce que le premier utilisateur le déverrouille.
+
+En effet, le verrouillage d'un fichier n'autorisera qu'un seul accès unique au fichier lors d'une écriture.
+
+\subsection{Sémaphores\cite{diffSemLock2}}
+Un sémaphore limite le nombre d'utilisateurs simultanés d'une ressource partagée jusqu'à un nombre maximum prédéfini. Plusieurs threads peuvent accéder à la ressource en décrémentant le sémaphore et signaler leur achèvement en l'incrémentant.
+
+Par exemple, chaque jour, la salle de sport d'une entreprise distribue un maximum de 3 cartes d'accès gratuites. Les trois premières personnes qui arrivent obtiennent une carte d'accès, tandis que les suivantes doivent attendre qu'une des trois premières personnes ait rendu la carte.
+
+\subsection{En comparaison}
+Les verrous (\textit{locking}) peuvent être utilisés entre des processus indépendants dans certains cas, tandis que les sémaphores doivent être partagés entre des processus distincts. Les sémaphores sont directement associés à un fichier, coordonnant ainsi l'accès à ce fichier ou à une portion de celui-ci.
+
+La plus grande différence est certainement que dans le cas des locks, avec certaines configurations, le principe de "celui qui ne joue pas le jeu n'est pas bloqué" tombe à l'eau. Il devient donc possible d'empêcher l'accès au fichier directement via le système de fichiers et non en passant par des process (voir Mandatory Locks).
+\newline
+
+Plus tard dans ce rapport, lorsque nous aurons vu comment fonctionne le verrouillage de fichier, je mettrai l'accent sur une comparaison concrète et avec des codes de la différence d'utilisation entre les sémaphores et les locks.

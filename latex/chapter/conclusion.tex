@@ -1,0 +1,11 @@
+\newpage
+\section{Conclusion}
+Ce rapport m'a permis d'atteindre les objectifs fixés, à savoir comprendre le fonctionnement des verrouillages de fichiers, utiliser ces outils, et explorer les concepts de manière autonome.
+
+À travers cette exploration, j'ai pu découvrir le rôle des verrous dans la gestion de l'accès concurrentiel aux fichiers et l'importance de ces mécanismes pour assurer une exécution sécurisée et cohérente des opérations dans un environnement multi-processus.
+
+Le récapitulatif des types de verrouillages, qu'ils soient advisory ou mandatory, ainsi que la prise en charge par le système d'exploitation à travers les structures \texttt{flock} et les appels système \texttt{fcntl()}, ont contribué à enrichir mes connaissances sur la manière dont le noyau gère ces opérations.
+
+J'ai également réalisé l'importance de considérer le comportement de ces mécanismes lors de la création de processus fils, notamment dans le contexte de l'utilisation de \texttt{fork} et \texttt{execve}. Cela m'a fait comprendre qu'un fork n'est pas sans risque et qu'il y a une multitude de chose à faire lorsque l'on clone un process pour en faire un fils étant donné qu'ils partagent les mêmes descripteurs de fichiers, ...
+
+En somme, ce travail a été une opportunité de découvrir un nouvel outil en programmation système, tout en suscitant une réflexion approfondie sur la nécessité de garantir une concurrence cohérente dans la gestion des ressources partagées.

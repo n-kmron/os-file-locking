@@ -1,12 +1,25 @@
-# File Locking in Linux
+# Cameron Noupoue - File Locking
 
-This repository provides scripts and code snippets to demonstrate file locking in a Linux environment. File locking is essential for managing concurrent access to shared files, preventing conflicts, and maintaining data integrity.
+## Où générer le fichier pdf grâce au latex
 
-## Getting Started:
+```bash
+    cd latex && make
+```
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/n-kmron/os-file-locking.git
-   ```
+Pour clean les fichiers d'output 
+```bash
+    cd latex && make clean
+```
 
-2. Use the code with next to `report.pdf`
+## Comment compiler les codes
+
+WARNING : Ils seront automatiquement compilés lors de l'éxécution du script
+```bash
+    cd codes && make compile
+```
+
+## Comment faire fonctionner l'automatisation
+Le script qui sera lancé exécutera tous les codes et exemples du rapport dans l'ordre
+```bash
+    cd codes && make exec
+```

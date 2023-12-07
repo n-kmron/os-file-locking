@@ -1,0 +1,27 @@
+\newpage
+\section{Introduction}
+\subsection{Contexte et Objectif}
+
+L'objectif de ce travail est de fournir une vue générale à la protection de régions critiques sur des fichiers avec la mise en place de verrous au sein des systèmes de fichier. Ces concepts seront abordés tant d'un point de vue théorique que pratique en parcourant le cheminement qui m'a amené à étudier ces points.
+
+\textbf{Objectifs du Rapport:} Après la lecture de ce rapport, vous serez en mesure de :
+
+\begin{itemize}
+\item Comprendre le fonctionnement des verrouillages de fichier
+\item Utiliser ces outils 
+\item Explorer par vous même les concepts sur votre environnement
+\end{itemize}
+
+Ce rapport explore en détail l'utilisation des commandes \texttt{flock} et \texttt{fcntl}, mettant l'accent sur leur mise en œuvre pratique, leurs différences, et les scénarios d'application pertinents. À travers des exemples concrets, nous illustrerons comment ces mécanismes offrent un contrôle fin sur l'accès aux fichiers, assurant une exécution sécurisée et cohérente des opérations de lecture et d'écriture.
+
+Mon objectif personnel à travers ce rapport sera de comprendre comment le noyau interprète les verrous et les traite en approfondissant leur rôle et leur utilité cruciale dans certains domaines du système d'exploitation.
+
+
+\subsection{Introduction au verrouillage de fichiers}
+Afin de démarrer ma recherche, j'ai d'abord voulu introduire mon sujet en comprenant et adoptant ses concepts dont voici un résumé que j'ai pu en faire.
+
+Le verrouillage de fichiers (\textit{file locking}) est un mécanisme essentiel en programmation système, permettant de contrôler l'accès concurrentiel à des fichiers partagés entre plusieurs processus. Il est particulièrement crucial dans des environnements où plusieurs processus peuvent accéder et modifier un même fichier de manière simultanée.
+
+Il s'agit d'un mécanisme qui permet de restreindre l'accès à un fichier pour un seul processus/utilisateur à la fois. En effet, il est essentiel pour les systèmes multi-processus d'éviter des conflits lorsque plusieurs processus tentent d'accéder à la même ressource. Dans Linux, cela est implémenté grâce à l'utilisation des verrous qui permettent d'empêcher l'accès à un fichier jusqu'à ce que le verrou soit libéré.
+
+\textbf{Remarque:} Les codes fournis ont été développés et adaptés pour OpenSuse 15.4 avec une distribution 64 bits. Des ajustements peuvent être nécessaires pour les exécuter sur d'autres distributions Linux.

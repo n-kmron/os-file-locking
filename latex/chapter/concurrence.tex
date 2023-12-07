@@ -1,0 +1,13 @@
+\newpage
+\section{L'accès concurrence : une norme qui n'a pas toujours été respectée}
+
+En parallèle de mes recherches, je suis tombé sur un documentaire qui expliquait l'importance d'une bonne gestion de l'accès en concurrence dans le cadre du développement software. J'ai trouvé cela intéressant et j'ai décidé de partager avec vous l'exemple que j'ai pu tirer du documentaire car il est assez concret. 
+\newline
+
+Nous avons déjà étudier la notion d'accès concurrence, mais le pourquoi restait assez théorique et je trouve que cet exemple démontre parfaitement à quel point c'est essentiel ! Je vous partage donc un aperçu que j'ai rédigé :
+\newline
+
+L'accès concurrentiel aux ressources partagées est une problématique cruciale en programmation système, nécessitant une gestion prudente pour éviter les conflits qui pourraient conduire à des résultats indésirables voire catastrophiques. Une illustration de l'impact potentiellement dévastateur du non-respect de l'accès concurrentiel a été mise en lumière dans l'incident tragique où une simple défaillance logicielle a coûté la vie à six personnes.\cite{SoftwareBugVideo}.
+\newline
+
+Cet incident, survenu en raison d'un bug logiciel, souligne la nécessité de mettre en œuvre des mécanismes de synchronisation robustes, tels que le verrouillage de fichiers, pour éviter des situations où plusieurs processus ou systèmes tentent d'accéder simultanément à une ressource partagée. Dans le contexte de l'accès aux fichiers, l'utilisation de verrous avec des outils tels que \texttt{flock} et \texttt{fcntl} devient essentielle pour prévenir de tels drames\cite{UnderscoreVideo}.

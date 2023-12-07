@@ -1,0 +1,47 @@
+\begin{thebibliography}{10}
+
+\bibitem{Mba}
+Monica Bastreghi.
+\newblock Cours de sys4, 2023.
+
+\bibitem{butenhof}
+David~R. Butenhof.
+\newblock {\em File Locking And Concurrency Control in UNIX}.
+\newblock Prentice Hall, 1997.
+
+\bibitem{diffSemLock2}
+DarkDust.
+\newblock Lock and semaphore difference.
+\newblock 2023.
+
+\bibitem{42BSD}
+Gunkies.org.
+\newblock 4.2 bsd - computer history.
+\newblock 2023.
+
+\bibitem{SoftwareBugVideo}
+Low~Level Learning.
+\newblock Understanding the impact of a software bug: A tragic incident, 2023.
+
+\bibitem{diffSemLock}
+Medium.com.
+\newblock Lock, mutex and semaphore difference.
+\newblock 2023.
+
+\bibitem{git}
+Cameron Noupoué.
+\newblock File locking on linux, 2023.
+
+\bibitem{UnderscoreVideo}
+Underscore.
+\newblock La trouvaille scandaleuse d'un physicien, 2023.
+
+\bibitem{ManFnctl}
+Make use of.
+\newblock Man 2 fnctl, 2023.
+
+\bibitem{ManLslock}
+Make use of.
+\newblock Man 8 lslock, 2023.
+
+\end{thebibliography}
