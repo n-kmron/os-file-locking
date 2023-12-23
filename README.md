@@ -1,6 +1,14 @@
 # Cameron Noupoue - File Locking
 
-## Où générer le fichier pdf grâce au latex
+## Introduction
+
+Dans le cadre d'un projet scolaire, j'ai méné une étude approfondie à propos des Files Locking sur Linux
+
+Un rapport est disponible sur ce dépôt et conçu avec Latex
+
+## Utilisation
+
+### Où générer le fichier pdf grâce au latex
 
 ```bash
     cd latex && make
@@ -23,3 +31,10 @@ Le script qui sera lancé exécutera tous les codes et exemples du rapport dans 
 ```bash
     cd codes && make exec
 ```
+
+## Crédits
+
+Projet réalisé dans le cadre de mes études à l'Ecole Supérieure d'Informatique (SYSG5)
+
+## Autheur 
+* Cameron Noupoué
